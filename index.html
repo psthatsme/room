@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang='en'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width,initial-scale=1'/>
+<title>Pixel Room Customizer</title>
+<style>
+:root{--bg:#1c1f26;--panel:#252a33;--panel2:#2c3240;--text:#e8ecf1;--muted:#9aa3b2}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,Segoe UI,Roboto}
+.app{display:grid;grid-template-columns:280px 1fr 300px;grid-template-rows:auto 1fr;gap:8px;padding:10px;height:100%}
+header{grid-column:1/-1;background:var(--panel);border-radius:10px;padding:8px 12px;display:flex;gap:8px;align-items:center}
+h1{font-size:16px;margin:0;font-weight:700}.sp{flex:1}
+.btn{background:var(--panel2);border:1px solid #0004;color:var(--text);border-radius:8px;padding:8px 10px;cursor:pointer}
+.col{background:var(--panel);border-radius:10px;padding:10px;overflow:auto}
+.canvasWrap{background:var(--panel);border-radius:10px;display:grid;grid-template-rows:auto 1fr}
+.tool{display:flex;gap:8px;align-items:center;padding:8px 10px;background:var(--panel2);border-bottom:1px solid #0004;border-radius:10px 10px 0 0}
+.tool input[type=color]{width:28px;height:28px;border:none;background:none;padding:0}
+canvas{background:#111;display:block;margin:0 auto;image-rendering:pixelated;image-rendering:crisp-edges}
+.section{margin-bottom:12px}.section h2{font-size:12px;margin:0 0 6px;color:#cbd5e1;text-transform:uppercase;letter-spacing:.04em}
+.sel, .rng, .num{width:100%;background:#141821;color:var(--text);border:1px solid #0006;border-radius:8px;padding:8px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.thumb{height:68px;background:#141821;border:1px solid #0006;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
+.thumb img{max-width:100%;max-height:100%;image-rendering:pixelated}
+.item{display:flex;gap:8px;align-items:center;background:#141821;border:1px solid #0006;border-radius:8px;padding:6px;margin-bottom:6px}
+.kbd{background:#0005;border:1px solid #0008;border-radius:6px;padding:2px 6px;color:#cbd5e1}
+</style></head>
+<body>
+<div class='app'>
+<header><h1>Pixel Room Customizer</h1><div class='sp'></div>
+<button id='savePNG' class='btn'>Export PNG</button>
+<button id='saveJSON' class='btn'>Save</button>
+<button id='loadJSON' class='btn'>Load</button></header>
+
+<div class='col'>
+  <div class='section'><h2>Catalog</h2>
+    <select id='category' class='sel'></select>
+    <select id='variant' class='sel' style='margin-top:6px'></select>
+    <div id='thumbs' class='grid' style='margin-top:8px'></div>
+  </div>
+  <div class='section'><h2>Wallpaper & Floor</h2>
+    <select id='wallpaper' class='sel'></select>
+    <select id='flooring' class='sel' style='margin-top:6px'></select>
+    <div style='display:flex;gap:6px;align-items:center;margin-top:8px'>
+      <label>W</label><input id='roomW' type='number' class='num' min='128' step='16' value='640'>
+      <label>H</label><input id='roomH' type='number' class='num' min='128' step='16' value='360'>
+      <button id='resizeRoom' class='btn'>Resize</button>
+    </div>
+  </div>
+</div>
+
+<div class='canvasWrap'>
+  <div class='tool'>
+    <label>Tint</label><input type='color' id='tint' value='#ffffff'>
+    <label>Size</label><input type='range' id='scale' min='50' max='200' value='100' class='rng'>
+    <label>Opacity</label><input type='range' id='alpha' min='10' max='100' value='100' class='rng'>
+    <button id='sendBack' class='btn'>Send ⬇︎</button>
+    <button id='bringFront' class='btn'>Bring ⬆︎</button>
+    <button id='flipX' class='btn'>Flip</button>
+    <button id='deleteSel' class='btn'>Delete</button>
+    <label style='margin-left:auto'><input type='checkbox' id='showGrid' checked> Grid</label>
+  </div>
+  <canvas id='c' width='640' height='360'></canvas>
+</div>
+
+<div class='col'>
+  <div class='section'><h2>Layers (Top→Bottom)</h2><div id='layers'></div>
+    <p style='color:#9aa3b2'>Drag to move; hold <span class='kbd'>Shift</span> to disable snap. Use <span class='kbd'>[</span>/<span class='kbd'>]</span> to send/back.</p>
+  </div>
+</div>
+</div>
+
+<script type='application/json' id='manifest'>
+{
+  "meta": { "grid": 16, "defaultScale": 100 },
+  "wallpapers": [
+    { "name":"Wood Panel – Light", "sheet":"assets/walls_sheet.png", "x":0, "y":0, "w":128, "h":96, "tileW":32, "tileH":32 },
+    { "name":"Floral – Cream",      "sheet":"assets/walls_sheet.png", "x":128, "y":0, "w":128, "h":96, "tileW":32, "tileH":32 },
+    { "name":"Brick – Red",         "sheet":"assets/walls_sheet.png", "x":256, "y":0, "w":128, "h":96, "tileW":32, "tileH":32 }
+  ],
+  "floors": [
+    { "name":"Plank – Oak", "sheet":"assets/walls_sheet.png", "x":0, "y":96, "w":96, "h":96, "tileW":32, "tileH":32 },
+    { "name":"Tatami",      "sheet":"assets/walls_sheet.png", "x":96, "y":96, "w":96, "h":96, "tileW":32, "tileH":32 },
+    { "name":"Checker",     "sheet":"assets/walls_sheet.png", "x":192, "y":96, "w":96, "h":96, "tileW":32, "tileH":32 }
+  ],
+  "categories": {
+    "Bed": [
+      {"name":"Bed","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":0,"w":96,"h":64},"left":{"sheet":"assets/furniture_sheet.png","x":96,"y":0,"w":96,"h":64},"right":{"sheet":"assets/furniture_sheet.png","x":192,"y":0,"w":96,"h":64}}}
+    ],
+    "Bookshelf": [
+      {"name":"Bookshelf","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":64,"w":64,"h":96},"left":{"sheet":"assets/furniture_sheet.png","x":64,"y":64,"w":64,"h":96},"right":{"sheet":"assets/furniture_sheet.png","x":128,"y":64,"w":64,"h":96}}}
+    ],
+    "Computer": [
+      {"name":"PC on Desk","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":160,"w":96,"h":64},"left":{"sheet":"assets/furniture_sheet.png","x":96,"y":160,"w":96,"h":64},"right":{"sheet":"assets/furniture_sheet.png","x":192,"y":160,"w":96,"h":64}}}
+    ],
+    "Single Seater Sofa": [
+      {"name":"Armchair","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":224,"w":64,"h":64},"left":{"sheet":"assets/furniture_sheet.png","x":64,"y":224,"w":64,"h":64},"right":{"sheet":"assets/furniture_sheet.png","x":128,"y":224,"w":64,"h":64}}}
+    ],
+    "Single Person Couch": [
+      {"name":"Loveseat","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":288,"w":96,"h":64},"left":{"sheet":"assets/furniture_sheet.png","x":96,"y":288,"w":96,"h":64},"right":{"sheet":"assets/furniture_sheet.png","x":192,"y":288,"w":96,"h":64}}}
+    ],
+    "Desk": [
+      {"name":"Desk","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":352,"w":112,"h":48},"left":{"sheet":"assets/furniture_sheet.png","x":112,"y":352,"w":112,"h":48},"right":{"sheet":"assets/furniture_sheet.png","x":224,"y":352,"w":112,"h":48}}}
+    ]
+  }
+}
+</script>
+
+<script>
+const $ = s=>document.querySelector(s);
+const c = $('#c'), ctx = c.getContext('2d'); ctx.imageSmoothingEnabled=false;
+const M = JSON.parse($('#manifest').textContent); const grid = M.meta.grid||16;
+let wallpaperIdx=0, floorIdx=0; let room={w:c.width,h:c.height,items:[],sel:-1};
+const categorySel=$('#category'), variantSel=$('#variant'), thumbs=$('#thumbs'), layers=$('#layers');
+const wallSel=$('#wallpaper'), floorSel=$('#flooring');
+const cache=new Map(); const load=src=>cache.get(src)||cache.set(src,new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;i.crossOrigin='anonymous'})).get(src);
+
+function init(){
+  Object.keys(M.categories).forEach(k=>{ const o=document.createElement('option'); o.value=k;o.textContent=k; categorySel.appendChild(o); });
+  updateVariants(); buildThumbs();
+  (M.wallpapers||[]).forEach((w,i)=>{ const o=document.createElement('option');o.value=i;o.textContent=w.name;wallSel.appendChild(o); });
+  (M.floors||[]).forEach((f,i)=>{ const o=document.createElement('option');o.value=i;o.textContent=f.name;floorSel.appendChild(o); });
+  draw(); buildLayers();
+}
+function updateVariants(){
+  variantSel.innerHTML='';
+  const arr=M.categories[categorySel.value]||[]; const vs=arr[0]?.variants?Object.keys(arr[0].variants):['front'];
+  vs.forEach(v=>{ const o=document.createElement('option'); o.value=v;o.textContent=v; variantSel.appendChild(o); });
+}
+async function buildThumbs(){
+  thumbs.innerHTML='';
+  for(const entry of (M.categories[categorySel.value]||[])){
+    const def=entry.variants?entry.variants[variantSel.value]:entry;
+    const el=document.createElement('div'); el.className='thumb'; const img=document.createElement('img'); el.appendChild(img); thumbs.appendChild(el);
+    if(def.sheet){
+      const i=await load(def.sheet); const off=document.createElement('canvas'); off.width=def.w;off.height=def.h; const o=off.getContext('2d');o.imageSmoothingEnabled=false;
+      o.drawImage(i,def.x,def.y,def.w,def.h,0,0,def.w,def.h); img.src=off.toDataURL();
+    } else img.src=def.src;
+    el.onclick=()=>addItem(entry);
+  }
+}
+function addItem(entry){
+  const def=entry.variants?entry.variants[variantSel.value]:entry; const w=def.w||64,h=def.h||64;
+  room.items.push({name:entry.name||'Item',variant:variantSel.value,src:def.src||def.sheet,rect:def.src?null:{x:def.x,y:def.y,w:def.w,h:def.h},x:Math.round((room.w/2-w/2)/grid)*grid,y:Math.round((room.h/2-h/2)/grid)*grid,scale:1,flip:false,alpha:1,tint:'#ffffff'});
+  room.sel=room.items.length-1; buildLayers(); draw();
+}
+function buildLayers(){
+  layers.innerHTML=''; room.items.forEach((it,idx)=>{ const d=document.createElement('div'); d.className='item'; d.textContent=it.name+' ('+(it.variant||'static')+')'; d.onclick=()=>{room.sel=idx;draw();}; layers.prepend(d); });
+}
+async function tile(def,x,y,w,h){
+  const img=await load(def.sheet||def.src); const tw=def.tileW||def.w, th=def.tileH||def.h;
+  for(let yy=y;yy<y+h;yy+=th) for(let xx=x;xx<x+w;xx+=tw)
+    ctx.drawImage(img, def.sheet?def.x:0, def.sheet?def.y:0, tw, th, xx, yy, tw, th);
+}
+async function drawItem(it,sel){
+  const img=await load(it.src); const w=it.rect?it.rect.w:img.width, h=it.rect?it.rect.h:img.height; const W=Math.round(w*it.scale), H=Math.round(h*it.scale);
+  ctx.save(); ctx.globalAlpha=it.alpha; ctx.translate(it.x+(it.flip?W:0),it.y); ctx.scale(it.flip?-1:1,1);
+  if(it.rect) ctx.drawImage(img,it.rect.x,it.rect.y,w,h,0,0,W,H); else ctx.drawImage(img,0,0,W,H); ctx.restore();
+  if(sel){ ctx.save(); ctx.setLineDash([4,3]); ctx.strokeStyle='#6dd3ff'; ctx.strokeRect(it.x,it.y,W,H); ctx.restore(); }
+}
+async function draw(){
+  ctx.clearRect(0,0,room.w,room.h);
+  if(M.wallpapers?.[wallpaperIdx]) await tile(M.wallpapers[wallpaperIdx],0,0,room.w,room.h);
+  const fh=Math.floor(room.h*0.35); if(M.floors?.[floorIdx]) await tile(M.floors[floorIdx],0,room.h-fh,room.w,fh);
+  for(let i=0;i<room.items.length;i++) await drawItem(room.items[i],i===room.sel);
+  if($('#showGrid').checked){ ctx.save(); ctx.strokeStyle='#fff1'; for(let x=0;x<room.w;x+=grid){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,room.h);ctx.stroke();} for(let y=0;y<room.h;y+=grid){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(room.w,y);ctx.stroke();} ctx.restore(); }
+}
+
+function hit(x,y){
+  for(let i=room.items.length-1;i>=0;i--){ const it=room.items[i]; const w=(it.rect?it.rect.w:64)*it.scale, h=(it.rect?it.rect.h:64)*it.scale; if(x>=it.x&&x<=it.x+w&&y>=it.y&&y<=it.y+h) return i; } return -1;
+}
+let dragging=false,dx=0,dy=0;
+c.addEventListener('mousedown',e=>{const r=c.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;const i=hit(x,y); if(i>=0){room.sel=i;dragging=true;dx=x-room.items[i].x;dy=y-room.items[i].y;draw();} else {room.sel=-1;draw();}});
+addEventListener('mousemove',e=>{if(!dragging||room.sel<0)return;const r=c.getBoundingClientRect();let nx=e.clientX-r.left-dx, ny=e.clientY-r.top-dy; if(!e.shiftKey){nx=Math.round(nx/grid)*grid;ny=Math.round(ny/grid)*grid;} room.items[room.sel].x=nx; room.items[room.sel].y=ny; draw();});
+addEventListener('mouseup',()=>dragging=false);
+
+categorySel.onchange=()=>{updateVariants();buildThumbs();};
+variantSel.onchange=()=>buildThumbs();
+wallSel.onchange=()=>{wallpaperIdx=+wallSel.value;draw();};
+floorSel.onchange=()=>{floorIdx=+floorSel.value;draw();};
+$('#resizeRoom').onclick=()=>{room.w=+$('#roomW').value;room.h=+$('#roomH').value;c.width=room.w;c.height=room.h;draw();};
+$('#tint').oninput=()=>{ if(room.sel>=0){ room.items[room.sel].tint=$('#tint').value; draw(); } }; // (kept for future shader)
+$('#scale').oninput=()=>{ if(room.sel>=0){ room.items[room.sel].scale=+$('#scale').value/100; draw(); } };
+$('#alpha').oninput=()=>{ if(room.sel>=0){ room.items[room.sel].alpha=+$('#alpha').value/100; draw(); } };
+$('#flipX').onclick=()=>{ if(room.sel>=0){ room.items[room.sel].flip=!room.items[room.sel].flip; draw(); } };
+$('#deleteSel').onclick=()=>{ if(room.sel>=0){ room.items.splice(room.sel,1); room.sel=-1; buildLayers(); draw(); } };
+$('#bringFront').onclick=()=>{ if(room.sel>=0){ const it=room.items.splice(room.sel,1)[0]; room.items.push(it); room.sel=room.items.length-1; buildLayers(); draw(); } };
+$('#sendBack').onclick=()=>{ if(room.sel>=0){ const it=room.items.splice(room.sel,1)[0]; room.items.unshift(it); room.sel=0; buildLayers(); draw(); } };
+
+addEventListener('keydown',e=>{
+  if(room.sel<0)return; const it=room.items[room.sel]; const step=e.shiftKey?8:1;
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','[',']','Delete'].includes(e.key)) e.preventDefault();
+  if(e.key==='ArrowLeft') it.x-=step; if(e.key==='ArrowRight') it.x+=step;
+  if(e.key==='ArrowUp') it.y-=step; if(e.key==='ArrowDown') it.y+=step;
+  if(e.key===']') $('#bringFront').click(); if(e.key==='[') $('#sendBack').click();
+  if(e.key==='Delete') $('#deleteSel').click(); draw();
+});
+
+$('#savePNG').onclick=()=>{const url=c.toDataURL('image/png'); const a=document.createElement('a'); a.href=url;a.download='room.png';a.click();};
+$('#saveJSON').onclick=()=>{const data=JSON.stringify({room,wallpaperIdx,floorIdx},null,2); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'application/json'})); a.download='project.json'; a.click();};
+$('#loadJSON').onclick=()=>{const i=document.createElement('input'); i.type='file'; i.accept='application/json'; i.onchange=async()=>{const t=await i.files[0].text(); const d=JSON.parse(t); room=d.room; wallpaperIdx=d.wallpaperIdx||0; floorIdx=d.floorIdx||0; c.width=room.w;c.height=room.h; $('#roomW').value=room.w;$('#roomH').value=room.h; draw();}; i.click();};
+
+init();
+</script>
+</body></html>
