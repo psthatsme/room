@@ -69,37 +69,156 @@ canvas{background:#111;display:block;margin:0 auto;image-rendering:pixelated;ima
 <script type='application/json' id='manifest'>
 {
   "meta": { "grid": 16, "defaultScale": 100 },
+
   "wallpapers": [
-    { "name":"Wood Panel – Light", "sheet":"assets/walls_sheet.png", "x":0, "y":0, "w":128, "h":96, "tileW":32, "tileH":32 },
-    { "name":"Floral – Cream",      "sheet":"assets/walls_sheet.png", "x":128, "y":0, "w":128, "h":96, "tileW":32, "tileH":32 },
-    { "name":"Brick – Red",         "sheet":"assets/walls_sheet.png", "x":256, "y":0, "w":128, "h":96, "tileW":32, "tileH":32 }
+    { "name": "Wood Panel – Light", "src": "assets/wall_wood_light_32.png", "tileW": 32, "tileH": 32 },
+    { "name": "Floral – Cream",     "src": "assets/wall_floral_cream_32.png", "tileW": 32, "tileH": 32 },
+    { "name": "Brick – Red",        "src": "assets/wall_brick_red_32.png", "tileW": 32, "tileH": 32 },
+    { "name": "Stripe – Pastel",    "src": "assets/wall_stripe_pastel_32.png", "tileW": 32, "tileH": 32 }
   ],
+
   "floors": [
-    { "name":"Plank – Oak", "sheet":"assets/walls_sheet.png", "x":0, "y":96, "w":96, "h":96, "tileW":32, "tileH":32 },
-    { "name":"Tatami",      "sheet":"assets/walls_sheet.png", "x":96, "y":96, "w":96, "h":96, "tileW":32, "tileH":32 },
-    { "name":"Checker",     "sheet":"assets/walls_sheet.png", "x":192, "y":96, "w":96, "h":96, "tileW":32, "tileH":32 }
+    { "name": "Plank – Oak",   "src": "assets/floor_plank_oak_32.png", "tileW": 32, "tileH": 32 },
+    { "name": "Tatami",        "src": "assets/floor_tatami_32.png", "tileW": 32, "tileH": 32 },
+    { "name": "Checker",       "src": "assets/floor_checker_32.png", "tileW": 32, "tileH": 32 },
+    { "name": "Stone",         "src": "assets/floor_stone_32.png", "tileW": 32, "tileH": 32 },
+    { "name": "Carpet – Neutral", "src": "assets/floor_carpet_neutral_32.png", "tileW": 32, "tileH": 32 }
   ],
+
   "categories": {
     "Bed": [
-      {"name":"Bed","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":0,"w":96,"h":64},"left":{"sheet":"assets/furniture_sheet.png","x":96,"y":0,"w":96,"h":64},"right":{"sheet":"assets/furniture_sheet.png","x":192,"y":0,"w":96,"h":64}}}
+      {
+        "name": "Bed",
+        "variants": {
+          "front": { "src": "assets/bed_front.png" },
+          "left":  { "src": "assets/bed_left.png" },
+          "right": { "src": "assets/bed_right.png" }
+        }
+      }
     ],
+
     "Bookshelf": [
-      {"name":"Bookshelf","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":64,"w":64,"h":96},"left":{"sheet":"assets/furniture_sheet.png","x":64,"y":64,"w":64,"h":96},"right":{"sheet":"assets/furniture_sheet.png","x":128,"y":64,"w":64,"h":96}}}
+      {
+        "name": "Bookshelf",
+        "variants": {
+          "front": { "src": "assets/bookshelf_front.png" },
+          "left":  { "src": "assets/bookshelf_left.png" },
+          "right": { "src": "assets/bookshelf_right.png" }
+        }
+      }
     ],
+
     "Computer": [
-      {"name":"PC on Desk","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":160,"w":96,"h":64},"left":{"sheet":"assets/furniture_sheet.png","x":96,"y":160,"w":96,"h":64},"right":{"sheet":"assets/furniture_sheet.png","x":192,"y":160,"w":96,"h":64}}}
+      {
+        "name": "Computer Desk",
+        "variants": {
+          "front": { "src": "assets/computer_front.png" },
+          "left":  { "src": "assets/computer_left.png" },
+          "right": { "src": "assets/computer_right.png" }
+        }
+      }
     ],
+
     "Single Seater Sofa": [
-      {"name":"Armchair","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":224,"w":64,"h":64},"left":{"sheet":"assets/furniture_sheet.png","x":64,"y":224,"w":64,"h":64},"right":{"sheet":"assets/furniture_sheet.png","x":128,"y":224,"w":64,"h":64}}}
+      {
+        "name": "Armchair",
+        "variants": {
+          "front": { "src": "assets/armchair_front.png" },
+          "left":  { "src": "assets/armchair_left.png" },
+          "right": { "src": "assets/armchair_right.png" }
+        }
+      }
     ],
+
     "Single Person Couch": [
-      {"name":"Loveseat","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":288,"w":96,"h":64},"left":{"sheet":"assets/furniture_sheet.png","x":96,"y":288,"w":96,"h":64},"right":{"sheet":"assets/furniture_sheet.png","x":192,"y":288,"w":96,"h":64}}}
+      {
+        "name": "Loveseat",
+        "variants": {
+          "front": { "src": "assets/loveseat_front.png" },
+          "left":  { "src": "assets/loveseat_left.png" },
+          "right": { "src": "assets/loveseat_right.png" }
+        }
+      }
     ],
+
     "Desk": [
-      {"name":"Desk","variants":{"front":{"sheet":"assets/furniture_sheet.png","x":0,"y":352,"w":112,"h":48},"left":{"sheet":"assets/furniture_sheet.png","x":112,"y":352,"w":112,"h":48},"right":{"sheet":"assets/furniture_sheet.png","x":224,"y":352,"w":112,"h":48}}}
+      {
+        "name": "Desk",
+        "variants": {
+          "front": { "src": "assets/desk_front.png" },
+          "left":  { "src": "assets/desk_left.png" },
+          "right": { "src": "assets/desk_right.png" }
+        }
+      }
+    ],
+
+    "Wall Shelf": [
+      { "name": "Shelf – Long",  "src": "assets/wall_shelf_long.png" },
+      { "name": "Shelf – Short", "src": "assets/wall_shelf_short.png" }
+    ],
+
+    "Paintings": [
+      { "name": "Painting – Small",  "src": "assets/painting_small.png" },
+      { "name": "Painting – Medium", "src": "assets/painting_medium.png" },
+      { "name": "Painting – Wide",   "src": "assets/painting_wide.png" },
+      { "name": "Painting – Tall",   "src": "assets/painting_tall.png" }
+    ],
+
+    "Books": [
+      { "name": "Book Stack",      "src": "assets/books_stack.png" },
+      { "name": "Books – Row",     "src": "assets/books_row.png" },
+      { "name": "Books – Standing","src": "assets/books_standing.png" }
+    ],
+
+    "Frames": [
+      { "name": "Frame – Gold",   "src": "assets/frame_gold.png" },
+      { "name": "Frame – Wood",   "src": "assets/frame_wood.png" },
+      { "name": "Frame – Black",  "src": "assets/frame_black.png" }
+    ],
+
+    "Things to place on a table": [
+      { "name": "Mug",        "src": "assets/prop_mug.png" },
+      { "name": "Vase",       "src": "assets/prop_vase.png" },
+      { "name": "Candle",     "src": "assets/prop_candle.png" },
+      { "name": "Notebook",   "src": "assets/prop_notebook.png" },
+      { "name": "Plate",      "src": "assets/prop_plate.png" }
+    ],
+
+    "Table": [
+      { "name": "Round Table",   "src": "assets/table_round.png" },
+      { "name": "Rect Table",    "src": "assets/table_rect.png" }
+    ],
+
+    "Stool": [
+      { "name": "Stool", "src": "assets/stool.png" }
+    ],
+
+    "Lamp": [
+      { "name": "Floor Lamp", "src": "assets/lamp_floor.png" },
+      { "name": "Table Lamp", "src": "assets/lamp_table.png" }
+    ],
+
+    "Plants": [
+      { "name": "Plant – Small", "src": "assets/plant_small.png" },
+      { "name": "Plant – Medium","src": "assets/plant_medium.png" },
+      { "name": "Plant – Tall",  "src": "assets/plant_tall.png" }
+    ],
+
+    "Carpet Long": [
+      { "name": "Rug – Long", "src": "assets/rug_long.png" }
+    ],
+    "Carpet Wide": [
+      { "name": "Rug – Wide", "src": "assets/rug_wide.png" }
+    ],
+    "Carpet Big": [
+      { "name": "Rug – Large", "src": "assets/rug_large.png" }
+    ],
+    "Carpet Circular": [
+      { "name": "Rug – Round", "src": "assets/rug_round.png" }
     ]
   }
 }
+
 </script>
 
 <script>
